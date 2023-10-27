@@ -1,0 +1,56 @@
+---
+title: "SingleCellExample"
+author: "Matthew Bradley"
+date: "2023-10-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Example of Single Cell RNA Analysis
+
+### Retrieving Data
+I will be using data associated with the paper "Single-cell transcriptome analysis reveals the immune heterogeneity and the repopulation of microglia by Hif1α in mice after spinal cord injury" by Wang et al. The data can be found on the NCBI Gene Expression Omnibus under the accession GSE182803.
+
+There are multiple ways to download the fastq data. I used the SRA Run Selector, and downloaded individual runs via the command line, using prefetch and fasterq-dump commands. Fastq files were then uploaded to the 10x genomics cloud, and inidividually aligned to the mouse genome. Once aligned, 10x files were downloaded and ready to be imported to R using the Seurat package.
+
+### Data Description
+This data contains 
+
+```{r include = FALSE}
+#Loading in all necessary packages
+library(Seurat)
+library(SingleR)
+library(celldex)
+library(topGO)
+library(topGO)
+library(org.Mm.eg.db)
+
+```
+
+```{r}
+#Locally loading in data
+setwd("~/Documents/SingleCell/WangPaper/")
+tenXDat <- list.files()[-14]
+
+#Reading in the data as matricies, then converting these to seurat objects
+matricies <- sapply(tenXDat, FUN = Read10X)
+seuObj <- lapply(matricies, CreateSeuratObject)
+```
+
+```{r}
+#Assign mitochondrial gene percentages to cells
+seuObj_a <- lapply(X = seuObj, FUN = function(x) {
+  x[["percent_mt"]] <- PercentageFeatureSet(x, pattern = "^mt-")
+  x
+})
+
+
+
+```
+
+
+
+
