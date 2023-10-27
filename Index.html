@@ -377,16 +377,15 @@ using the Seurat package.</p>
 <h3>Data Description</h3>
 <p>This data contains</p>
 <pre class="r"><code>#Locally loading in data
-tenXDat &lt;- list.files()[-14]
-
+tenXDat &lt;- tenXDat &lt;- list.dirs(recursive = F)
 #Reading in the data as matricies, then converting these to seurat objects
-# matricies &lt;- sapply(tenXDat, FUN = Read10X)
-# seuObj &lt;- lapply(matricies, CreateSeuratObject)</code></pre>
+matricies &lt;- sapply(tenXDat, FUN = Read10X)
+seuObj &lt;- lapply(matricies, CreateSeuratObject)</code></pre>
 <pre class="r"><code>#Assign mitochondrial gene percentages to cells
-# seuObj_a &lt;- lapply(X = seuObj, FUN = function(x) {
-#   x[[&quot;percent_mt&quot;]] &lt;- PercentageFeatureSet(x, pattern = &quot;^mt-&quot;)
-#   x
-# })</code></pre>
+seuObj_a &lt;- lapply(X = seuObj, FUN = function(x) {
+  x[[&quot;percent_mt&quot;]] &lt;- PercentageFeatureSet(x, pattern = &quot;^mt-&quot;)
+  x
+})</code></pre>
 </div>
 </div>
 
