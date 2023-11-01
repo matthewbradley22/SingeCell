@@ -31,6 +31,7 @@ library(org.Mm.eg.db)
 
 ```
 
+The first step is loading in the data and creating Seurat objects for cleaning and analyzing
 ```{r}
 #Locally loading in data
 tenXDat <- tenXDat <- list.dirs(recursive = F)
@@ -39,6 +40,8 @@ matricies <- sapply(tenXDat, FUN = Read10X)
 seuObj <- lapply(matricies, CreateSeuratObject)
 ```
 
+Seurat objects are filtered to remove low quality cells (remove high counts as well for potential
+doublets)
 ```{r}
 #Assign mitochondrial gene percentages to cells
 seuObj_a <- lapply(X = seuObj, FUN = function(x) {
@@ -46,9 +49,24 @@ seuObj_a <- lapply(X = seuObj, FUN = function(x) {
   x
 })
 
+#Subset objects to expected expression levels
+seuObj_a <- lapply(X = seuObj_a, FUN = function(x) {
+  x <- subset(x, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent_mt < 15)
+})
+
+#Normalize cells and find variable genes
+seuObj_a <- lapply(X = seuObj_a, FUN = function(x) {
+  x <- NormalizeData(x)
+  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
+})
 
 ```
 
+Once the data is cleaned and normalized, the integration process of the different datasets is begun.
+Integration is helpful for removing batch effects
+```{r}
 
+features <- SelectIntegrationFeatures(object.list = seuObj_a)
 
+```
 

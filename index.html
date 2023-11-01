@@ -376,16 +376,35 @@ using the Seurat package.</p>
 <div id="data-description" class="section level3">
 <h3>Data Description</h3>
 <p>This data contains</p>
+<p>The first step is loading in the data and creating Seurat objects for
+cleaning and analyzing</p>
 <pre class="r"><code>#Locally loading in data
 tenXDat &lt;- tenXDat &lt;- list.dirs(recursive = F)
 #Reading in the data as matricies, then converting these to seurat objects
 matricies &lt;- sapply(tenXDat, FUN = Read10X)
 seuObj &lt;- lapply(matricies, CreateSeuratObject)</code></pre>
+<p>Seurat objects are filtered to remove low quality cells (remove high
+counts as well for potential doublets)</p>
 <pre class="r"><code>#Assign mitochondrial gene percentages to cells
 seuObj_a &lt;- lapply(X = seuObj, FUN = function(x) {
   x[[&quot;percent_mt&quot;]] &lt;- PercentageFeatureSet(x, pattern = &quot;^mt-&quot;)
   x
+})
+
+#Subset objects to expected expression levels
+seuObj_a &lt;- lapply(X = seuObj_a, FUN = function(x) {
+  x &lt;- subset(x, subset = nFeature_RNA &gt; 200 &amp; nFeature_RNA &lt; 2500 &amp; percent_mt &lt; 15)
+})
+
+#Normalize cells and find variable genes
+seuObj_a &lt;- lapply(X = seuObj_a, FUN = function(x) {
+  x &lt;- NormalizeData(x)
+  x &lt;- FindVariableFeatures(x, selection.method = &quot;vst&quot;, nfeatures = 2000)
 })</code></pre>
+<p>Once the data is cleaned and normalized, the integration process of
+the different datasets is begun. Integration is helpful for removing
+batch effects</p>
+<pre class="r"><code>features &lt;- SelectIntegrationFeatures(object.list = seuObj_a)</code></pre>
 </div>
 </div>
 
